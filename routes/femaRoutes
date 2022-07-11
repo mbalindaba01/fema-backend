@@ -1,0 +1,29 @@
+const router = require('express').Router()
+const pgp = require('pg-promise')()
+
+//database config
+const config = {
+	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
+}
+const db = pgp(config)
+
+router.get('/', async (req, res) => {
+    let users = await db.any('select * from users')
+    res.json({
+        users
+    })
+})
+
+router.post('/register', async (req, res) => {
+    let fullName = req.body.name
+    let email = req.body.email
+    let password = req.body.password
+    await db.none('insert into users(full_name, email, password) values ($1, $2, $3)', [fullName, email, password])
+    res.json('user registered successfully')
+})
+
+router.post('/booking', async (req, res) => {
+   
+})
+
+module.exports = router
