@@ -1,9 +1,15 @@
 const router = require('express').Router()
 const pgp = require('pg-promise')()
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const cors = require("cors");
 
+router.use(cors());
+dotenv.config();
 //database config
 const config = {
-	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
+	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:32010@localhost:5432/fema_app',
 }
 const db = pgp(config)
 
@@ -15,13 +21,42 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-    let fullName = req.body.name
-    let email = req.body.email
-    let password = req.body.password
-    await db.none('insert into users(full_name, email, password) values ($1, $2, $3)', [fullName, email, password])
-    res.json('user registered successfully')
+    try {
+        let fullName = req.body.name
+        let email = req.body.email
+        let password = req.body.password
+        bcrypt.hash(password, 10).then(async(hashedPass) => {
+        await db.none('insert into users(full_name, email, password) values ($1, $2, $3)', [fullName, email, hashedPass])
+    });
+    res.json('user registered successfully');
+
+    } catch (error) {
+        	res.json({
+			status: "error",
+			error: err.message,
+		});
+    }
+ 
 })
 
+router.post("/login", async (req, res) => {
+	const { password, email, fullName} = req.body;
+
+	const user = await db.oneOrNone(`select * from users where email=$1`, [
+		email,
+	]);
+	if (!user) return res.status(400).send("User does not exist");
+
+	const dbPassword = user.password;
+
+	const validPass = await bcrypt.compare(password, dbPassword);
+	if (!validPass) return res.status(400).send("Invalid email or password");
+	//create and assign token
+	const tokenUser = {Name: fullName, email: email };
+	const token = jwt.sign(tokenUser, process.env.TOKEN_SECRET);
+
+	res.header("access_token", token).send(token);
+}); 
 router.post('/booking', async (req, res) => {
    
 })
