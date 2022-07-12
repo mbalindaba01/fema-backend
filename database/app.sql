@@ -5,7 +5,7 @@ create table users (
     full_name varchar not null,
     email varchar not null,
     password varchar not null
-)
+);
 
 create table facilities (
     facility_id serial not null primary key,
@@ -16,7 +16,13 @@ create table facilities (
     facility_contacno varchar not null,
     facility_email varchar not null,
     services varchar [] not null
-)
+);
+
+create table services (
+    service_id serial not null primary key,
+    servicename varchar unique not null,
+    service_description varchar not null
+);
 
 create table bookings (
     booking_id serial not null primary key,
@@ -27,4 +33,4 @@ create table bookings (
     services varchar not null,
     booking_date date not null,
     booking_time time not null
-)
+);
