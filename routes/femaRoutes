@@ -40,6 +40,28 @@ router.post('/register', async (req, res) => {
 })
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+router.post("/login", async (req, res) => {
+	const { password, email, fullName} = req.body;
+
+	const user = await db.oneOrNone(`select * from users where email=$1`, [
+		email,
+	]);
+	if (!user) return res.status(400).send("User does not exist");
+
+	const dbPassword = user.password;
+
+	const validPass = await bcrypt.compare(password, dbPassword);
+	if (!validPass) return res.status(400).send("Invalid email or password");
+	//create and assign token
+	const tokenUser = {Name: fullName, email: email };
+	const token = jwt.sign(tokenUser, process.env.TOKEN_SECRET);
+
+	res.header("access_token", token).send(token);
+}); 
+=======
+>>>>>>> de3c8658fedd0bddb770d65d4a4e5baeb7c21c9e
 router.get('/services', async (req, res) => {
     const results = await db.many(`select services from facilities`);
     let services = [];

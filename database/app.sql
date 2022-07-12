@@ -30,7 +30,8 @@ create table bookings (
     foreign key (user_ref) references users(user_id),
     facility_ref int not null,
     foreign key (facility_ref) references facilities(facility_id),
-    services varchar not null,
+    services varchar [] not null,
+    foreign key (services) references services(service_id)
     booking_date date not null,
     booking_time time not null
 );
