@@ -28,6 +28,7 @@ router.get('/services', async (req, res) => {
 
     results.forEach(result => {
         // console.log(result.services);
+        //prevent duplicates
         result.services.forEach(service => {
             if (!services.includes(service)) {
                 services.push(service);
