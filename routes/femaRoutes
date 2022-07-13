@@ -122,4 +122,19 @@ router.post('/booking', async (req, res) => {
     }
 })
 
+router.get('/userbookings', async (req, res) => {
+    try {
+        let userEmail = req.body.email
+        let userID = await db.oneOrNone('select user_id from users where email = $1', [userEmail])
+        let bookings = await db.any('select * from bookings where user_ref = $1', [userID.user_id])
+        res.json({
+            bookings
+        })
+    }
+    
+    catch (error) {
+        res.json(error)
+    }
+})
+
 module.exports = router
