@@ -137,4 +137,17 @@ router.get('/userbookings', async (req, res) => {
     }
 })
 
+router.get('/facilitybookings', async (req, res) => {
+    try {
+        let facilityEmail = req.body.facEmail
+        let facilityRef = await db.oneOrNone('select * from facilities where facility_email = $1', [facilityEmail])
+        let bookings = await db.any('select * from bookings where facility_ref = $1', [facilityRef.facility_id])
+        res.json(bookings)
+    } 
+    
+    catch (error) {
+        res.json(error)
+    }
+})
+
 module.exports = router
