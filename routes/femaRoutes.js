@@ -10,6 +10,10 @@ dotenv.config()
 //database config
 const config = {
 	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
+    // ssl: {
+    //     require: true,
+    //     rejectUnauthorized: false
+    // }
 }
 const db = pgp(config)
 
@@ -30,7 +34,7 @@ router.post('/register', async (req, res) => {
     } catch (error) {
         	res.json({
 			status: "error",
-			error: err.message,
+			error: error.message,
 		});
     }
  
@@ -60,6 +64,7 @@ router.get('/services', async (req, res) => {
 
     results.forEach(result => {
         // console.log(result.services);
+        //prevent duplicates
         result.services.forEach(service => {
             if (!services.includes(service)) {
                 services.push(service);
@@ -71,6 +76,20 @@ router.get('/services', async (req, res) => {
         services
     })
 });
+
+router.get('/facilities', async (req, res) => {
+    try {
+        const {facility_name} = req.query;
+       let servicesOfferedByFacility = await db.many(`select * from facilities where facility_name = $1`, [facility_name]);
+       console.log(servicesOfferedByFacility);
+        res.json({data: servicesOfferedByFacility});
+    } 
+    
+    catch (error) {
+        console.log(error)
+        res.json(error)
+    }
+})
 
 router.get('/services/:servicename', async (req, res) => {
 
