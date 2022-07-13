@@ -1,5 +1,5 @@
 insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, services_ids, password)
-values('bara medi clinic', 'baragwanath, soweto', 'Gp 133 33', 2, '0734553355', 'baragmail.com', '{1, 2, 3}', 'Bara123');
+values('clicks', 'suninghill', 'Gp 133 33', 2, '0734553355', 'clicksgmail.com', '{1, 3}', 'Clicks123');
 
 -- insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, services)
 -- values('clicks', 'clicks, joburg', 'GP 334 22', 3, '0737654455', 'clicksgmail.com', '{"Contraceptives", "termination", "family planning", "pregnancy", "menstruation"}');
