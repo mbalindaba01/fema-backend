@@ -41,6 +41,20 @@ router.get('/services', async (req, res) => {
     })
 });
 
+router.get('/facilities', async (req, res) => {
+    try {
+        const {facility_name} = req.query;
+       let servicesOfferedByFacility = await db.many(`select * from facilities where facility_name = $1`, [facility_name]);
+       console.log(servicesOfferedByFacility);
+        res.json({data: servicesOfferedByFacility});
+    } 
+    
+    catch (error) {
+        console.log(error)
+        res.json(error)
+    }
+})
+
 router.get('/services/:servicename', async (req, res) => {
 
     const {servicename} = req.params;
