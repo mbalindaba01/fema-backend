@@ -1,15 +1,15 @@
 const router = require('express').Router()
 const pgp = require('pg-promise')()
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-const cors = require("cors");
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+const dotenv = require("dotenv")
+const cors = require("cors")
 
-router.use(cors());
-dotenv.config();
+router.use(cors())
+dotenv.config()
 //database config
 const config = {
-	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:32010@localhost:5432/fema_app',
+	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
 }
 const db = pgp(config)
 
@@ -38,10 +38,6 @@ router.post('/register', async (req, res) => {
     }
  
 })
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 router.post("/login", async (req, res) => {
 	const { password, email, fullName} = req.body;
 
@@ -60,8 +56,7 @@ router.post("/login", async (req, res) => {
 
 	res.header("access_token", token).send(token);
 }); 
-=======
->>>>>>> de3c8658fedd0bddb770d65d4a4e5baeb7c21c9e
+
 router.get('/services', async (req, res) => {
     const results = await db.many(`select services from facilities`);
     let services = [];
@@ -91,7 +86,7 @@ router.get('/services/:servicename', async (req, res) => {
     })
 });
 
-=======
+
 router.post("/login", async (req, res) => {
 	const { password, email, fullName} = req.body;
 
@@ -110,9 +105,21 @@ router.post("/login", async (req, res) => {
 
 	res.header("access_token", token).send(token);
 }); 
->>>>>>> d203684a0d78ca10e90705eb2e45d366ae0a1cb9
+
 router.post('/booking', async (req, res) => {
-   
+    try {
+        const { email, facilityName, date, time, serviceId} = req.body;
+        let userRef = await db.oneOrNone('select user_id from users where email = $1', [email])
+        let facilityRef = await db.oneOrNone('select facility_id from facilities where facility_name = $1', [facilityName])
+        console.log(facilityRef.facility_id)
+        await db.none("insert into bookings(user_ref, facility_ref, service_id, booking_date, booking_time) values ($1, $2, $3, $4, $5)", [userRef.user_id, facilityRef.facility_id, serviceId, date, time])
+
+        res.json('Booking successful')
+    }
+
+    catch(error){
+        res.json(error)
+    }
 })
 
 module.exports = router

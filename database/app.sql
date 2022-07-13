@@ -15,7 +15,8 @@ create table facilities (
     facility_capacity int,
     facility_contacno varchar not null,
     facility_email varchar not null,
-    services varchar [] not null
+    services_ids varchar [] not null,
+    password varchar not null
 );
 
 create table services (
@@ -30,8 +31,8 @@ create table bookings (
     foreign key (user_ref) references users(user_id),
     facility_ref int not null,
     foreign key (facility_ref) references facilities(facility_id),
-    services varchar [] not null,
-    foreign key (services) references services(service_id)
+    service_id int not null,
+    foreign key (service_id) references services(service_id),
     booking_date date not null,
     booking_time time not null
 );
