@@ -14,10 +14,7 @@ const config = {
 const db = pgp(config)
 
 router.get('/', async (req, res) => {
-    let users = await db.any('select * from users')
-    res.json({
-        users
-    })
+    res.json('it works')
 })
 
 router.post('/register', async (req, res) => {
@@ -146,6 +143,20 @@ router.get('/facilitybookings', async (req, res) => {
     } 
     
     catch (error) {
+        res.json(error)
+    }
+})
+
+router.get('/facilities', async (req, res) => {
+    try {
+       let service = 'contraceptives'
+       let serviceId = await db.one('select service_id from services where servicename = $1', [service])
+       let facilities = await db.many('select * from facilities');
+        res.json(facilities)
+    } 
+    
+    catch (error) {
+        console.log(error)
         res.json(error)
     }
 })
