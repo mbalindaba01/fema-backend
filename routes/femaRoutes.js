@@ -178,6 +178,18 @@ router.delete('/userbookings/:id', async (req, res) => {
    }
 })
 
+router.put('/userbookings/:id', async (req, res) => {
+    try {
+        let bookingId = req.params.id
+        const { date, time } = req.body
+        await db.none('update bookings set booking_date = $1, booking_time = $2 where booking_id = $3', [date, time, bookingId])
+        res.json('Booking updated successfully')
+    } 
+    catch (error) {
+        res.json('Something went wrong. Please try again')
+    }
+})
+
 router.post('/registerFacility', async (req, res) => {
     try {
         const { facName, facLocation, facReg, capacity, contactno, email, password, services } = req.body
