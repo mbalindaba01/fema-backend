@@ -100,16 +100,18 @@ router.get('/services/:servicename', async (req, res) => {
 
 router.post('/makebooking', async (req, res) => {
     try {
-        const { email, facilityName, date, time, serviceId } = req.body;
+        //const { email, facilityName, date, time, serviceId } = req.body;
         // let email = 'sanemadesi@gmail.com'
-        // let facilityName = 'clicks'
+        // let facilityName = 'Clinic 100'
         // let date = '10-12-2022'
         // let time = '10:00'
         // let serviceId = 1
         let userRef = await db.oneOrNone('select user_id from users where email = $1', [email])
-        let facilityRef = await db.oneOrNone('select facility_id from facilities where facility_name = $1', [facilityName])
-        console.log(facilityRef.facility_id)
-        await db.none("insert into bookings(user_ref, facility_ref, service_id, booking_date, booking_time) values ($1, $2, $3, $4, $5)", [userRef.user_id, facilityRef.facility_id, serviceId, date, time])
+        let facilityRef = await db.any('select facility_id from facilities where facility_name = $1', [facilityName])
+        console.log(facilityRef[0].facility_id)
+        console.log(userRef.user_id)
+        console.log('Mbali')
+        await db.none("insert into bookings(user_ref, facility_ref, service_id, booking_date, booking_time) values ($1, $2, $3, $4, $5)", [userRef.user_id, facilityRef[0].facility_id, serviceId, date, time])
 
         res.json({
             message: 'Booking Successful'
@@ -123,8 +125,7 @@ router.post('/makebooking', async (req, res) => {
 
 router.get('/userbookings', async (req, res) => {
     try {
-        // let userEmail = req.body.email
-        let userEmail = 'mbalindaba01@gmail.com'
+        let userEmail = req.body.email
         let userID = await db.any('select user_id from users where email = $1', [userEmail])
         let bookings = await db.any('select * from bookings where user_ref = $1', [userID[0].user_id])
         res.json({
@@ -165,6 +166,17 @@ router.get('/facilities', async (req, res) => {
     }
 })
 
+router.delete('/userbookings/:id', async (req, res) => {
+   try {
+    let bookingId = 3
+    await db.none('delete from bookings where booking_id = $1', [bookingId])
+    res.json('Booking successfully deleted.')
+   } 
+   
+   catch (error) {
+    res.json('Something went wrong. Please try again.')
+   }
+})
 
 router.post('/registerFacility', async (req, res) => {
     try {
@@ -177,7 +189,6 @@ router.post('/registerFacility', async (req, res) => {
         })
         res.json('Succesful registration')
     } 
-    
     catch (error) {
         console.log(error)
         res.json(error)
