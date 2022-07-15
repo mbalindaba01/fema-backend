@@ -80,19 +80,7 @@ router.post("/loginFacility", async (req, res) => {
 }); 
 
 router.get('/services', async (req, res) => {
-    const results = await db.many(`select * from service_config`);
-    let services = [];
-
-    results.forEach(result => {
-        // console.log(result.services);
-        //prevent duplicates
-        result.services.forEach(service => {
-            if (!services.includes(service)) {
-                services.push(service);
-            }
-        });
-       
-    });
+    const services = await db.many(`select * from service_config`);
     res.json({
         services
     })
