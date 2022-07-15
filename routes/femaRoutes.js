@@ -59,24 +59,6 @@ router.post("/login", async (req, res) => {
 	res.header("access_token", token).send(token);
 }); 
 
-router.post("/registerFacility", async (req, res) => {
-	try {
-        const {facilityName, location, reg, capacity, contact, facilityEmail, serviceId, facilityPass} = req.body;
-		bcrypt.hash(facilityPass, 10).then(async (hashedPass) => {
-			await db.none(
-				"insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, services_ids, password) values ($1, $2, $3, $4, $5, $6, $7, $8)",
-				[facilityName, location, reg, capacity, contact, facilityEmail, serviceId, hashedPass]
-			);
-		});
-		res.json("Facility registered successfully");
-	} catch (error) {
-		res.json({
-			status: "error",
-			error: error.message,
-		});
-	}
-});
-
 router.post("/loginFacility", async (req, res) => {
 	const { facilityPass, facilityEmail} = req.body;
 
@@ -98,19 +80,7 @@ router.post("/loginFacility", async (req, res) => {
 }); 
 
 router.get('/services', async (req, res) => {
-    const results = await db.many(`select * from service_config`);
-    let services = [];
-
-    results.forEach(result => {
-        // console.log(result.services);
-        //prevent duplicates
-        result.services.forEach(service => {
-            if (!services.includes(service)) {
-                services.push(service);
-            }
-        });
-       
-    });
+    const services = await db.many(`select * from service_config`);
     res.json({
         services
     })
@@ -128,15 +98,24 @@ router.get('/services/:servicename', async (req, res) => {
 });
  
 
-router.post('/booking', async (req, res) => {
+router.post('/makebooking', async (req, res) => {
     try {
-        const { email, facilityName, date, time, serviceId} = req.body;
+        //const { email, facilityName, date, time, serviceId } = req.body;
+        // let email = 'sanemadesi@gmail.com'
+        // let facilityName = 'Clinic 100'
+        // let date = '10-12-2022'
+        // let time = '10:00'
+        // let serviceId = 1
         let userRef = await db.oneOrNone('select user_id from users where email = $1', [email])
-        let facilityRef = await db.oneOrNone('select facility_id from facilities where facility_name = $1', [facilityName])
-        console.log(facilityRef.facility_id)
-        await db.none("insert into bookings(user_ref, facility_ref, service_id, booking_date, booking_time) values ($1, $2, $3, $4, $5)", [userRef.user_id, facilityRef.facility_id, serviceId, date, time])
+        let facilityRef = await db.any('select facility_id from facilities where facility_name = $1', [facilityName])
+        console.log(facilityRef[0].facility_id)
+        console.log(userRef.user_id)
+        console.log('Mbali')
+        await db.none("insert into bookings(user_ref, facility_ref, service_id, booking_date, booking_time) values ($1, $2, $3, $4, $5)", [userRef.user_id, facilityRef[0].facility_id, serviceId, date, time])
 
-        res.json('Booking successful')
+        res.json({
+            message: 'Booking Successful'
+        })
     }
 
     catch(error){
@@ -147,8 +126,8 @@ router.post('/booking', async (req, res) => {
 router.get('/userbookings', async (req, res) => {
     try {
         let userEmail = req.body.email
-        let userID = await db.oneOrNone('select user_id from users where email = $1', [userEmail])
-        let bookings = await db.any('select * from bookings where user_ref = $1', [userID.user_id])
+        let userID = await db.any('select user_id from users where email = $1', [userEmail])
+        let bookings = await db.any('select * from bookings where user_ref = $1', [userID[0].user_id])
         res.json({
             bookings
         })
@@ -161,9 +140,11 @@ router.get('/userbookings', async (req, res) => {
 
 router.get('/facilitybookings', async (req, res) => {
     try {
-        let facilityEmail = req.body.facEmail
-        let facilityRef = await db.oneOrNone('select * from facilities where facility_email = $1', [facilityEmail])
-        let bookings = await db.any('select * from bookings where facility_ref = $1', [facilityRef.facility_id])
+        let facilityEmail = 'clicksgmail.com'
+        let facilityRef = await db.any('select facility_id from facilities where facility_email = $1', [facilityEmail])
+        console.log(facilityRef)
+        let bookings = await db.any('select * from bookings where facility_ref = $1', [facilityRef[0].facility_id])
+        console.log(bookings)
         res.json(bookings)
     } 
     
@@ -185,21 +166,41 @@ router.get('/facilities', async (req, res) => {
     }
 })
 
-router.post('/faclogin', (req, res) => {
-    
+router.delete('/userbookings/:id', async (req, res) => {
+   try {
+    let bookingId = 3
+    await db.none('delete from bookings where booking_id = $1', [bookingId])
+    res.json('Booking successfully deleted.')
+   } 
+   
+   catch (error) {
+    res.json('Something went wrong. Please try again.')
+   }
 })
 
-router.post('/facreg', async (req, res) => {
+router.put('/userbookings/:id', async (req, res) => {
+    try {
+        let bookingId = req.params.id
+        const { date, time } = req.body
+        await db.none('update bookings set booking_date = $1, booking_time = $2 where booking_id = $3', [date, time, bookingId])
+        res.json('Booking updated successfully')
+    } 
+    catch (error) {
+        res.json('Something went wrong. Please try again')
+    }
+})
+
+router.post('/registerFacility', async (req, res) => {
     try {
         const { facName, facLocation, facReg, capacity, contactno, email, password, services } = req.body
-
-        await db.none('insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)', [facName, facLocation, facReg, capacity, contactno, email, password])
-        let facilityId = await db.one('select facility_id from facilities where facility_email = $1', [email])
-        console.log(facilityId.facility_id)
-        services.forEach(service => db.none('insert into services(facility_ref, serv_config_ref) values ($1, $2)', [facilityId.facility_id, service]))
+        bcrypt.hash(password, 10)
+        .then(async(hashedPass) => {
+            await db.none('insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)', [facName, facLocation, facReg, capacity, contactno, email, hashedPass])
+            let facilityId = await db.one('select facility_id from facilities where facility_email = $1', [email])
+            services.forEach(service => db.none('insert into services(facility_ref, serv_config_ref) values ($1, $2)', [facilityId.facility_id, service]))
+        })
         res.json('Succesful registration')
     } 
-    
     catch (error) {
         console.log(error)
         res.json(error)
