@@ -11,10 +11,10 @@ dotenv.config()
 //database config
 const config = {
 	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
-    ssl: {
-        require: true,
-        rejectUnauthorized: false
-    }
+    // ssl: {
+    //     require: true,
+    //     rejectUnauthorized: false
+    // }
 }
 const db = pgp(config)
 
@@ -58,24 +58,6 @@ router.post("/login", async (req, res) => {
 
 	res.header("access_token", token).send(token);
 }); 
-
-router.post("/registerFacility", async (req, res) => {
-	try {
-        const {facilityName, location, reg, capacity, contact, facilityEmail, serviceId, facilityPass} = req.body;
-		bcrypt.hash(facilityPass, 10).then(async (hashedPass) => {
-			await db.none(
-				"insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, services_ids, password) values ($1, $2, $3, $4, $5, $6, $7, $8)",
-				[facilityName, location, reg, capacity, contact, facilityEmail, serviceId, hashedPass]
-			);
-		});
-		res.json("Facility registered successfully");
-	} catch (error) {
-		res.json({
-			status: "error",
-			error: error.message,
-		});
-	}
-});
 
 router.post("/loginFacility", async (req, res) => {
 	const { facilityPass, facilityEmail} = req.body;
@@ -195,24 +177,16 @@ router.get('/facilities', async (req, res) => {
     }
 })
 
-router.post('/faclogin', (req, res) => {
-    
-})
 
-router.post('/facreg', async (req, res) => {
+router.post('/registerFacility', async (req, res) => {
     try {
         const { facName, facLocation, facReg, capacity, contactno, email, password, services } = req.body
-        // let facName = 'Clinic 70',
-        //     facLocation = 'Johannesburg',
-        //     facReg = '12222',
-        //     capacity = 3,
-        //     contactno = '070969969',
-        //     email = 'clinic70@gmail.com',
-        //     password = '70123Cl'
-        //     services = [1, 2, 3]
-        await db.none('insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)', [facName, facLocation, facReg, capacity, contactno, email, password])
-        let facilityId = await db.one('select facility_id from facilities where facility_email = $1', [email])
-        services.forEach(service => db.none('insert into services(facility_ref, serv_config_ref) values ($1, $2)', [facilityId.facility_id, service]))
+        bcrypt.hash(password, 10)
+        .then(async(hashedPass) => {
+            await db.none('insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)', [facName, facLocation, facReg, capacity, contactno, email, hashedPass])
+            let facilityId = await db.one('select facility_id from facilities where facility_email = $1', [email])
+            services.forEach(service => db.none('insert into services(facility_ref, serv_config_ref) values ($1, $2)', [facilityId.facility_id, service]))
+        })
         res.json('Succesful registration')
     } 
     
