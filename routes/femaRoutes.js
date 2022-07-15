@@ -4,16 +4,17 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 const cors = require("cors")
+// const { formDataToBlob } = require('formdata-polyfill/esm.min')
 
 router.use(cors())
 dotenv.config()
 //database config
 const config = {
 	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
-    	ssl: {
-    		require: true,
-    		rejectUnauthorized: false
-    	 }
+    ssl: {
+        require: true,
+        rejectUnauthorized: false
+    }
 }
 const db = pgp(config)
 
@@ -97,7 +98,7 @@ router.post("/loginFacility", async (req, res) => {
 }); 
 
 router.get('/services', async (req, res) => {
-    const results = await db.many(`select services from facilities`);
+    const results = await db.many(`select * from service_config`);
     let services = [];
 
     results.forEach(result => {
@@ -114,20 +115,6 @@ router.get('/services', async (req, res) => {
         services
     })
 });
-
-router.get('/facilities', async (req, res) => {
-    try {
-        const {facility_name} = req.query;
-       let servicesOfferedByFacility = await db.many(`select * from facilities where facility_name = $1`, [facility_name]);
-       console.log(servicesOfferedByFacility);
-        res.json({data: servicesOfferedByFacility});
-    } 
-    
-    catch (error) {
-        console.log(error)
-        res.json(error)
-    }
-})
 
 router.get('/services/:servicename', async (req, res) => {
 
@@ -187,10 +174,30 @@ router.get('/facilitybookings', async (req, res) => {
 
 router.get('/facilities', async (req, res) => {
     try {
-       let service = 'contraceptives'
-       let serviceId = await db.one('select service_id from services where servicename = $1', [service])
-       let facilities = await db.many('select * from facilities');
-        res.json(facilities)
+       let serviceId = req.body.id
+       let facilities = await db.any('select facilities.* from service_config inner join services on serv_config_id = serv_config_ref inner join facilities on facility_id = facility_ref where serv_config_id = $1', [serviceId])
+       res.json(facilities)
+    } 
+    
+    catch (error) {
+        console.log(error)
+        res.json(error)
+    }
+})
+
+router.post('/faclogin', (req, res) => {
+    
+})
+
+router.post('/facreg', async (req, res) => {
+    try {
+        const { facName, facLocation, facReg, capacity, contactno, email, password, services } = req.body
+
+        await db.none('insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)', [facName, facLocation, facReg, capacity, contactno, email, password])
+        let facilityId = await db.one('select facility_id from facilities where facility_email = $1', [email])
+        console.log(facilityId.facility_id)
+        services.forEach(service => db.none('insert into services(facility_ref, serv_config_ref) values ($1, $2)', [facilityId.facility_id, service]))
+        res.json('Succesful registration')
     } 
     
     catch (error) {
