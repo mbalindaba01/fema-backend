@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
  
 })
 router.post("/login", async (req, res) => {
-	const { password, email, fullName} = req.body;
+	const { password, email} = req.body;
 
 	const user = await db.oneOrNone(`select * from users where email=$1`, [
 		email,
@@ -52,8 +52,46 @@ router.post("/login", async (req, res) => {
 	const validPass = await bcrypt.compare(password, dbPassword);
 	if (!validPass) return res.status(400).send("Invalid email or password");
 	//create and assign token
-	const tokenUser = {Name: fullName, email: email };
+	const tokenUser = { email: email };
 	const token = jwt.sign(tokenUser, process.env.TOKEN_SECRET);
+
+	res.header("access_token", token).send(token);
+}); 
+
+router.post("/registerFacility", async (req, res) => {
+	try {
+        const {facilityName, location, reg, capacity, contact, facilityEmail, serviceId, facilityPass} = req.body;
+		bcrypt.hash(facilityPass, 10).then(async (hashedPass) => {
+			await db.none(
+				"insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, services_ids, password) values ($1, $2, $3, $4, $5, $6, $7, $8)",
+				[facilityName, location, reg, capacity, contact, facilityEmail, serviceId, hashedPass]
+			);
+		});
+		res.json("Facility registered successfully");
+	} catch (error) {
+		res.json({
+			status: "error",
+			error: error.message,
+		});
+	}
+});
+
+router.post("/loginFacility", async (req, res) => {
+	const { facilityPass, facilityEmail} = req.body;
+
+	const user = await db.oneOrNone(
+		`select * from facilities where facility_email=$1`,
+		[facilityEmail]
+	);
+	if (!user) return res.status(400).send("Facility does not exist");
+
+	const dbPassword = user.password;
+
+	const validPass = await bcrypt.compare(facilityPass, dbPassword);
+	if (!validPass) return res.status(400).send("Invalid email or password");
+	//create and assign token
+	const tokenUser = { email: facilityEmail };
+	const token = jwt.sign(tokenUser, process.env.FACTOKEN_SECRET);
 
 	res.header("access_token", token).send(token);
 }); 
@@ -101,26 +139,7 @@ router.get('/services/:servicename', async (req, res) => {
         service: results
     })
 });
-
-
-router.post("/login", async (req, res) => {
-	const { password, email, fullName} = req.body;
-
-	const user = await db.oneOrNone(`select * from users where email=$1`, [
-		email,
-	]);
-	if (!user) return res.status(400).send("User does not exist");
-
-	const dbPassword = user.password;
-
-	const validPass = await bcrypt.compare(password, dbPassword);
-	if (!validPass) return res.status(400).send("Invalid email or password");
-	//create and assign token
-	const tokenUser = {Name: fullName, email: email };
-	const token = jwt.sign(tokenUser, process.env.TOKEN_SECRET);
-
-	res.header("access_token", token).send(token);
-}); 
+ 
 
 router.post('/booking', async (req, res) => {
     try {
