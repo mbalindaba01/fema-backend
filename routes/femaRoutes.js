@@ -19,11 +19,7 @@ const config = {
 const db = pgp(config)
 
 router.get('/', async (req, res) => {
-    let users = await db.any('select * from users')
-    console.log(users)
-    res.json({
-        users
-    })
+    res.json('it works')
 })
 
 router.post('/register', async (req, res) => {
