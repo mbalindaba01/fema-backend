@@ -98,7 +98,7 @@ router.get('/services/:servicename', async (req, res) => {
 });
  
 
-router.post('/booking', async (req, res) => {
+router.post('/makebooking', async (req, res) => {
     try {
         const { email, facilityName, date, time, serviceId } = req.body;
         // let email = 'sanemadesi@gmail.com'
