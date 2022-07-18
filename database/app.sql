@@ -15,7 +15,6 @@ create table facilities (
     facility_capacity int,
     facility_contacno varchar not null,
     facility_email varchar not null,
-    services_ids varchar [] not null,
     password varchar not null
 );
 
