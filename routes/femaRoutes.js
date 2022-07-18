@@ -63,24 +63,24 @@ router.post("/login", async (req, res) => {
 }); 
 
 
-router.post("/registerFacility", async (req, res) => {
-	try {
-        const {facilityName, location, reg, capacity, contact, facilityEmail, facilityPass} = req.body;
-		bcrypt.hash(facilityPass, 10).then(async (hashedPass) => {
-			await db.none(
-				"insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)",
-				[facilityName, location, reg, capacity, contact, facilityEmail, hashedPass]
-			);
-		res.json("Facility registered successfully");
+// router.post("/registerFacility", async (req, res) => {
+// 	try {
+//         const {facilityName, location, reg, capacity, contact, facilityEmail, facilityPass} = req.body;
+// 		bcrypt.hash(facilityPass, 10).then(async (hashedPass) => {
+// 			await db.none(
+// 				"insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)",
+// 				[facilityName, location, reg, capacity, contact, facilityEmail, hashedPass]
+// 			);
+// 		res.json("Facility registered successfully");
 
-		});
-	} catch (error) {
-		res.json({
-			status: "error",
-			error: error.message,
-		});
-	}
-});
+// 		});
+// 	} catch (error) {
+// 		res.json({
+// 			status: "error",
+// 			error: error.message,
+// 		});
+// 	}
+// });
 
 //register facilities route
 router.post('/registerFacility', async (req, res) => {
