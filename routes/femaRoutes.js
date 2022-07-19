@@ -11,10 +11,10 @@ dotenv.config()
 //database config
 const config = {
 connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
-    ssl: {
+     ssl: {
         require: true,
-         rejectUnauthorized: false
-     }
+        rejectUnauthorized: false
+    }
 }
 const db = pgp(config)
 //test route
