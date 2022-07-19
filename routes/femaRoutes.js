@@ -18,9 +18,9 @@ connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28
 }
 const db = pgp(config)
 //test route
-// router.get('/', async (req, res) => {
-//     res.json('it works')
-// })
+ router.get('/', async (req, res) => {
+     res.json('it works')
+ })
 
 //register users route
 router.post('/register', async (req, res) => {
