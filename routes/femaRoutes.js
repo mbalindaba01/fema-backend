@@ -10,11 +10,11 @@ router.use(cors())
 dotenv.config()
 //database config
 const config = {
-	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
-    // ssl: {
-    //     require: true,
-    //     rejectUnauthorized: false
-    // }
+connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
+     ssl: {
+        require: true,
+        rejectUnauthorized: false
+    }
 }
 const db = pgp(config)
 //test route
