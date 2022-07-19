@@ -11,10 +11,10 @@ dotenv.config()
 //database config
 const config = {
 	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
-    ssl: {
-        require: true,
-        rejectUnauthorized: false
-    }
+    // ssl: {
+    //     require: true,
+    //     rejectUnauthorized: false
+    // }
 }
 const db = pgp(config)
 //test route
@@ -139,6 +139,7 @@ router.get('/services', async (req, res) => {
 router.get('/services/:servicename', async (req, res) => {
 
     const {servicename} = req.params;
+    console.log(req.params)
     const results = await db.oneOrNone(`select * from services where servicename = $1`, [servicename.toLowerCase()]);
     console.log(results);
 
@@ -203,9 +204,9 @@ router.get('/facilitybookings', async (req, res) => {
 })
 
 //get all the facilities that offer a service route
-router.get('/facilities', async (req, res) => {
-    try {
-       let serviceId = req.body.id
+router.get('/facilities/:id', async (req, res) => {
+    try {       
+       let serviceId = req.params.id
        let facilities = await db.any('select facilities.* from service_config inner join services on serv_config_id = serv_config_ref inner join facilities on facility_id = facility_ref where serv_config_id = $1', [serviceId])
        res.json(facilities)
     } 
