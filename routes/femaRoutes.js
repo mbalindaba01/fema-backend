@@ -141,7 +141,7 @@ router.get('/services', async (req, res) => {
 
 router.get('/services/:servicename', async (req, res) => {
 
-    const {servicename} = req.params;
+    const {servicename} = req.params.servicename;
     const results = await db.oneOrNone(`select * from services where servicename = $1`, [servicename.toLowerCase()]);
     console.log(results);
 
