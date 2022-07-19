@@ -10,8 +10,8 @@ app.use(cors())
 app.use('/fema', route);
 
 const config = {
-	connectionString: 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
-	max: 30,
+	connectionString: 'postgresql://sanesh:sanesh123@localhost:5432/fema_app',
+	max: 30
 };
 
 if(process.env.NODE_ENV == 'production'){
