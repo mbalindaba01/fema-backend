@@ -18,9 +18,9 @@ connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28
 }
 const db = pgp(config)
 //test route
-router.get('/', async (req, res) => {
-    res.json('it works')
-})
+ router.get('/', async (req, res) => {
+     res.json('it works')
+ })
 
 //register users route
 router.post('/register', async (req, res) => {
@@ -62,6 +62,26 @@ router.post("/login", async (req, res) => {
 	res.header("access_token", token).send(token);
 }); 
 
+
+// router.post("/registerFacility", async (req, res) => {
+// 	try {
+//         const {facilityName, location, reg, capacity, contact, facilityEmail, facilityPass} = req.body;
+// 		bcrypt.hash(facilityPass, 10).then(async (hashedPass) => {
+// 			await db.none(
+// 				"insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)",
+// 				[facilityName, location, reg, capacity, contact, facilityEmail, hashedPass]
+// 			);
+// 		res.json("Facility registered successfully");
+
+// 		});
+// 	} catch (error) {
+// 		res.json({
+// 			status: "error",
+// 			error: error.message,
+// 		});
+// 	}
+// });
+
 //register facilities route
 router.post('/registerFacility', async (req, res) => {
     try {
@@ -79,6 +99,7 @@ router.post('/registerFacility', async (req, res) => {
         res.json(error)
     }
 })
+
 
 //login facility route
 router.post("/loginFacility", async (req, res) => {
