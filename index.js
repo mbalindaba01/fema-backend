@@ -6,6 +6,7 @@ const cors = require('cors')
 
 app.use(express.json())
 app.use(cors())
+app.options("*", cors());
 
 app.use('/fema', route);
 
