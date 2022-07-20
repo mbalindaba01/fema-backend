@@ -10,11 +10,14 @@ router.use(cors())
 dotenv.config()
 //database config
 const config = {
-connectionString: process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app',
-     ssl: {
-        require: true,
-        rejectUnauthorized: false
-    }
+	connectionString: 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app'
+}
+
+if(process.env.NODE_ENV == 'production'){
+    config.ssl = {
+		rejectUnauthorized : false
+	}
+    config.connectionString = process.env.DATABASE_URL
 }
 const db = pgp(config)
 //test route
@@ -25,22 +28,22 @@ const db = pgp(config)
 //register users route
 router.post('/register', async (req, res) => {
     try {
-        let fullName = req.body.name
+        let full_name = req.body.full_name
         let email = req.body.email
         let password = req.body.password
-        bcrypt.hash(password, 10).then(async(hashedPass) => {
-        await db.none('insert into users(full_name, email, password) values ($1, $2, $3)', [fullName, email, hashedPass])
-    });
-    res.json('user registered successfully');
 
-    } catch (error) {
+        bcrypt.hash(password, 10).then(async(hashedPass) => {
+            await db.none('insert into users(full_name, email, password) values ($1, $2, $3)', [full_name, email, hashedPass])
+        });
+        res.json('user registered successfully');
+    }catch (error) {
         	res.json({
 			status: "error",
 			error: error.message,
 		});
     }
  
-})
+});
 
 //login users route
 router.post("/login", async (req, res) => {
@@ -137,7 +140,7 @@ router.get('/services', async (req, res) => {
 //get a service route
 
 router.get('/services/:servicename', async (req, res) => {
-
+    const {servicename} = req.params.servicename;
     const {servicename} = req.params;
     console.log(req.params)
     const results = await db.oneOrNone(`select * from services where servicename = $1`, [servicename.toLowerCase()]);
@@ -151,15 +154,20 @@ router.get('/services/:servicename', async (req, res) => {
 //make booking route
 router.post('/makebooking', async (req, res) => {
     try {
-        // const { email, facilityName, date, time, serviceId } = req.body;
-        let email = 'sanemadesi@gmail.com'
-        let facilityName = 'Clinic 100'
-        let date = '10-12-2022'
-        let time = '10:00'
-        let serviceId = 1
+        const { email, facilityName, date, time, serviceId } = req.body;
+        // let email = 'sanemadesi@gmail.com'
+        // let facilityName = 'Clinic 100'
+        // let date = '10-12-2022'
+        // let time = '10:00'
+        // let serviceId = 1
         let userRef = await db.oneOrNone('select user_id from users where email = $1', [email])
-        let facilityRef = await db.any('select facility_id from facilities where facility_name = $1', [facilityName])
-        await db.none("insert into bookings(user_ref, facility_ref, service_id, booking_date, booking_time, booking_status) values ($1, $2, $3, $4, $5, $6)", [userRef.user_id, facilityRef[0].facility_id, serviceId, date, time, 'pending'])
+        console.log(userRef);
+        if (userRef) {
+            let facilityRef = await db.any('select facility_id from facilities where facility_name = $1', [facilityName]);
+            console.log(facilityRef);
+            await db.none("insert into bookings(user_ref, facility_ref, service_id, booking_date, booking_time, booking_status) values ($1, $2, $3, $4, $5, $6)", [userRef.user_id, facilityRef[0].facility_id, serviceId, date, time, 'pending'])
+        }
+        
 
         res.json({
             message: 'Booking Successful'
