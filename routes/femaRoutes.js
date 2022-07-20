@@ -215,7 +215,9 @@ router.get('/facilities/:id', async (req, res) => {
     try {       
        let serviceId = req.params.id
        let facilities = await db.any('select facilities.* from service_config inner join services on serv_config_id = serv_config_ref inner join facilities on facility_id = facility_ref where serv_config_id = $1', [serviceId])
-       res.json(facilities)
+       res.json({
+        facilities
+       })
     } 
     
     catch (error) {
