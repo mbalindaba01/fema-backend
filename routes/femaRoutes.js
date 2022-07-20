@@ -10,7 +10,7 @@ router.use(cors())
 dotenv.config()
 //database config
 const config = {
-	connectionString: 'postgresql://postgres:sanesh:sanesh123@localhost:5432/fema_app'
+	connectionString: 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app'
 }
 
 if(process.env.NODE_ENV == 'production'){
@@ -21,9 +21,9 @@ if(process.env.NODE_ENV == 'production'){
 }
 const db = pgp(config)
 //test route
-router.get('/', async (req, res) => {
-    res.json('it works')
-})
+ router.get('/', async (req, res) => {
+     res.json('it works')
+ })
 
 //register users route
 router.post('/register', async (req, res) => {
@@ -140,8 +140,9 @@ router.get('/services', async (req, res) => {
 //get a service route
 
 router.get('/services/:servicename', async (req, res) => {
-
     const {servicename} = req.params.servicename;
+    const {servicename} = req.params;
+    console.log(req.params)
     const results = await db.oneOrNone(`select * from services where servicename = $1`, [servicename.toLowerCase()]);
     console.log(results);
 
@@ -211,9 +212,9 @@ router.get('/facilitybookings', async (req, res) => {
 })
 
 //get all the facilities that offer a service route
-router.get('/facilities', async (req, res) => {
-    try {
-       let serviceId = req.body.id
+router.get('/facilities/:id', async (req, res) => {
+    try {       
+       let serviceId = req.params.id
        let facilities = await db.any('select facilities.* from service_config inner join services on serv_config_id = serv_config_ref inner join facilities on facility_id = facility_ref where serv_config_id = $1', [serviceId])
        res.json(facilities)
     } 

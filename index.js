@@ -20,6 +20,7 @@ if(process.env.NODE_ENV == 'production'){
 	}
     config.connectionString = process.env.DATABASE_URL
 }
+app.use('/fema', route)
 
 const PORT = process.env.PORT || 5000
 
