@@ -1,9 +1,10 @@
 const express = require('express')
-const app = express()
-const route = require('./routes/femaRoutes')
+const PgPromise = require("pg-promise")
 require('dotenv').config();
 const cors = require('cors')
+const route = require('./routes/femaRoutes')
 
+const app = express();
 app.use(express.json())
 app.use(cors())
 
@@ -21,6 +22,12 @@ if(process.env.NODE_ENV == 'production'){
     config.connectionString = process.env.DATABASE_URL
 }
 
-const PORT = process.env.PORT || 5000
+const pgp = PgPromise({});
+const db = pgp(config);
+
+API(app, db);
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log('Server running at port ' + PORT))
+
+module.exports = app;
