@@ -3,14 +3,14 @@ const pgp = require('pg-promise')()
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
-const cors = require("cors")
+// const cors = require("cors")
 // const { formDataToBlob } = require('formdata-polyfill/esm.min')
 
-router.use(cors())
+// router.use(cors())
 dotenv.config()
 //database config
 const config = {
-	connectionString: 'postgresql://postgres:Minenhle!28@localhost:5432/fema_app'
+	connectionString: process.env.DATABASE_URL || 'postgresql://postgres:32010@localhost:5432/fema_app'
 }
 
 if(process.env.NODE_ENV == 'production'){
