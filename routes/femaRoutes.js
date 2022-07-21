@@ -6,9 +6,7 @@ const dotenv = require("dotenv")
 const cors = require("cors")
 // const { formDataToBlob } = require('formdata-polyfill/esm.min')
 
-router.use(cors({
-	origin: 'http://localhost:5000/'
-}))
+router.use(cors())
 dotenv.config()
 //database config
 const config = {
