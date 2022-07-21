@@ -5,7 +5,9 @@ require('dotenv').config();
 const cors = require('cors')
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+	origin: 'http://localhost:5000/'
+}))
 app.options("*", cors());
 
 app.use('/fema', route);
