@@ -2,13 +2,13 @@ const express = require('express')
 const PgPromise = require("pg-promise")
 require('dotenv').config();
 const cors = require('cors')
-const route = require('./routes/femaRoutes')
+const API = require('./routes/femaRoutes')
 
 const app = express();
 app.use(express.json())
 app.use(cors())
 
-app.use('/fema', route);
+// app.use('/fema', route);
 
 const config = {
 	connectionString: 'postgresql://sanesh:sanesh123@localhost:5432/fema_app',
@@ -21,7 +21,7 @@ if(process.env.NODE_ENV == 'production'){
 	}
     config.connectionString = process.env.DATABASE_URL
 }
-app.use('/fema', route)
+// app.use('/fema', route)
 
 const pgp = PgPromise({});
 const db = pgp(config);
