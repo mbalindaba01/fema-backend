@@ -21,6 +21,7 @@ if(process.env.NODE_ENV == 'production'){
 	}
     config.connectionString = process.env.DATABASE_URL
 }
+app.use('/fema', route)
 
 const pgp = PgPromise({});
 const db = pgp(config);

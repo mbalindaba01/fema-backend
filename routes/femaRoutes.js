@@ -249,4 +249,57 @@ module.exports = function (app, db){
     //     }
     // })
 
-}
+    //get all the facilities that offer a service route
+    app.get('/fema/facilities/:id', async (req, res) => {
+        try {       
+        let serviceId = req.params.id
+        let facilities = await db.any('select facilities.* from service_config inner join services on serv_config_id = serv_config_ref inner join facilities on facility_id = facility_ref where serv_config_id = $1', [serviceId])
+        res.json(facilities)
+        } 
+        
+        catch (error) {
+            console.log(error)
+            res.json(error)
+        }
+    })
+
+    //update booking status route
+    app.post('/fema/bookings/:id', async (req, res) => {
+        try {
+            let id = req.params.id
+            await db.none('update bookings set booking_status = $1 where booking_id = $2',['confirmed', id])
+            res.json('booking accepted')
+        } 
+        catch (error) {
+            res.json('Something went wrong. Please try again')
+        }
+    })
+
+    //delete bookings route
+    app.delete('/fema/userbookings/:id', async (req, res) => {
+    try {
+        let bookingId = 3
+        await db.none('delete from bookings where booking_id = $1', [bookingId])
+        res.json('Booking successfully deleted.')
+    } 
+    
+    catch (error) {
+        res.json('Something went wrong. Please try again.')
+    }
+    })
+
+    //edit bookings route
+    app.put('/fema/userbookings/:id', async (req, res) => {
+        try {
+            let bookingId = req.params.id
+            const { date, time } = req.body
+            await db.none('update bookings set booking_date = $1, booking_time = $2 where booking_id = $3', [date, time, bookingId])
+            await db.none('update bookings set booking_status = $1 where booking_id = $2', ['pending', bookingId])
+            res.json('Booking updated successfully')
+        } 
+        catch (error) {
+            res.json('Something went wrong. Please try again')
+        }
+    });
+
+};
