@@ -6,6 +6,116 @@ module.exports = function (app, db){
     app.get('/fema', async (req, res) => {
         res.json('it works')
     })
+const cors = require('cors');
+const router = require('express').Router()
+const pgp = require('pg-promise')()
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+const dotenv = require("dotenv")
+const cors = require("cors")
+// const { formDataToBlob } = require('formdata-polyfill/esm.min')
+
+router.use(cors())
+dotenv.config()
+//database config
+const config = {
+	connectionString: `${process.env.DATABASE_URL}` || 'postgresql://postgres:32010@localhost:5432/fema_app'
+}
+
+if(process.env.NODE_ENV == 'production'){
+    config.ssl = {
+		rejectUnauthorized : false
+	}
+    config.connectionString = `${process.env.DATABASE_URL}`
+}
+const db = pgp(config)
+//test route
+ router.get('/', async (req, res) => {
+     res.json('it works')
+ })
+
+//register users route
+router.post('/register', async (req, res) => {
+    try {
+        let full_name = req.body.full_name
+        let email = req.body.email
+        let password = req.body.password
+
+        bcrypt.hash(password, 10).then(async(hashedPass) => {
+            await db.none('insert into users(full_name, email, password) values ($1, $2, $3)', [full_name, email, hashedPass])
+        });
+        res.json('user registered successfully');
+    }catch (error) {
+        	res.json({
+			status: "error",
+			error: error.message,
+		});
+    }
+ 
+});
+
+//login users route
+router.post("/login", async (req, res) => {
+	const { password, email} = req.body;
+
+	const user = await db.oneOrNone(`select * from users where email=$1`, [
+		email,
+	]);
+	if (!user) return res.status(400).send("User does not exist");
+
+	const dbPassword = user.password;
+
+	const validPass = await bcrypt.compare(password, dbPassword);
+	if (!validPass) return res.status(400).send("Invalid email or password");
+	//create and assign token
+	const tokenUser = { email: email };
+	const token = jwt.sign(tokenUser, process.env.TOKEN_SECRET);
+
+	res.header("access_token", token).send(token);
+}); 
+
+
+// router.post("/registerFacility", async (req, res) => {
+// 	try {
+//         const {facilityName, location, reg, capacity, contact, facilityEmail, facilityPass} = req.body;
+// 		bcrypt.hash(facilityPass, 10).then(async (hashedPass) => {
+// 			await db.none(
+// 				"insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)",
+// 				[facilityName, location, reg, capacity, contact, facilityEmail, hashedPass]
+// 			);
+// 		res.json("Facility registered successfully");
+
+// 		});
+// 	} catch (error) {
+// 		res.json({
+// 			status: "error",
+// 			error: error.message,
+// 		});
+// 	}
+// });
+
+//register facilities route
+router.post('/registerFacility', async (req, res) => {
+    try {
+        const { facName, facLocation, facReg, capacity, contactno, email, password, services } = req.body
+        bcrypt.hash(password, 10)
+        .then(async(hashedPass) => {
+            await db.none('insert into facilities(facility_name, facility_location, facility_reg, facility_capacity, facility_contacno, facility_email, password) values ($1, $2, $3, $4, $5, $6, $7)', [facName, facLocation, facReg, capacity, contactno, email, hashedPass])
+            let facilityId = await db.one('select facility_id from facilities where facility_email = $1', [email])
+            services.forEach(service => db.none('insert into services(facility_ref, serv_config_ref) values ($1, $2)', [facilityId.facility_id, service]))
+        })
+        res.json('Succesful registration')
+    } 
+    catch (error) {
+        console.log(error)
+        res.json(error)
+    }
+})
+
+
+//login facility route
+router.post("/loginFacility", async (req, res) => {
+	const { facilityPass, facilityEmail} = req.body;
 
     //register users route
     app.post('/fema/register', async (req, res) => {
@@ -157,6 +267,12 @@ module.exports = function (app, db){
             })
         }
 
+router.get('/services/:servicename', async (req, res) => {
+    const {servicename} = req.params.servicename;
+    console.log(req.params)
+    const results = await db.oneOrNone(`select * from services where servicename = $1`, [servicename.toLowerCase()]);
+    console.log(results);
+
         catch(error){
             console.log(error)
             res.json(error)
@@ -287,6 +403,23 @@ module.exports = function (app, db){
         res.json('Something went wrong. Please try again.')
     }
     })
+})
+
+//get all the facilities that offer a service route
+router.get('/facilities/:id', async (req, res) => {
+    try {       
+       let serviceId = req.params.id
+       let facilities = await db.any('select facilities.* from service_config inner join services on serv_config_id = serv_config_ref inner join facilities on facility_id = facility_ref where serv_config_id = $1', [serviceId])
+       res.json({
+        facilities
+       })
+    } 
+    
+    catch (error) {
+        console.log(error)
+        res.json(error)
+    }
+})
 
     //edit bookings route
     app.put('/fema/userbookings/:id', async (req, res) => {

@@ -6,9 +6,10 @@ const API = require('./routes/femaRoutes')
 
 const app = express();
 app.use(express.json())
-app.use(cors())
 
-// app.use('/fema', route);
+app.options("*", cors());
+
+app.use('/fema', route);
 
 const config = {
 	connectionString: 'postgresql://sanesh:sanesh123@localhost:5432/fema_app',
@@ -32,3 +33,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server running at port ' + PORT))
 
 module.exports = app;
+=======
+app.listen(PORT, () => console.log('Server running at port ' + PORT))
