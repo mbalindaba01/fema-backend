@@ -17,7 +17,7 @@ if(process.env.NODE_ENV == 'production'){
     config.ssl = {
 		rejectUnauthorized : false
 	}
-    config.connectionString = `${process.env.DATABASE_URL}
+    config.connectionString = `${process.env.DATABASE_URL}`
 }
 const db = pgp(config)
 //test route
