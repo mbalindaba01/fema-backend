@@ -13,7 +13,7 @@ const config = {
 	connectionString: `${process.env.DATABASE_URL}` || 'postgresql://postgres:32010@localhost:5432/fema_app'
 }
 
-if(`${process.env.NODE_ENV}` == 'production'){
+if(process.env.NODE_ENV == 'production'){
     config.ssl = {
 		rejectUnauthorized : false
 	}
