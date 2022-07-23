@@ -1,3 +1,4 @@
+const cors = require('cors');
 const router = require('express').Router()
 const pgp = require('pg-promise')()
 const bcrypt = require("bcrypt")
@@ -6,7 +7,7 @@ const dotenv = require("dotenv")
 // const cors = require("cors")
 // const { formDataToBlob } = require('formdata-polyfill/esm.min')
 
-// router.use(cors())
+router.use(cors())
 dotenv.config()
 //database config
 const config = {
