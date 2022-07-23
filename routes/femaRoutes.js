@@ -241,7 +241,7 @@ router.post('/bookings/:id', async (req, res) => {
 //delete bookings route
 router.delete('/userbookings/:id', async (req, res) => {
    try {
-    let bookingId = 3
+    let bookingId = req.params.id
     await db.none('delete from bookings where booking_id = $1', [bookingId])
     res.json('Booking successfully deleted.')
    } 
