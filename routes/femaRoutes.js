@@ -4,7 +4,6 @@ const pgp = require('pg-promise')()
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
-const cors = require("cors")
 // const { formDataToBlob } = require('formdata-polyfill/esm.min')
 
 router.use(cors())
