@@ -1,13 +1,11 @@
 const express = require('express')
 const app = express()
-const route = require('./routes/femaRoutes')
+const route = require('./routes/routes')
 require('dotenv').config();
 
 app.use(express.json())
 
 //app.options("*", cors());
-
-app.use('/fema', route);
 
 const config = {
 	connectionString: 'postgresql://sanesh:sanesh123@localhost:5432/fema_app',

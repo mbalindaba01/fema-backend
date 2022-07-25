@@ -31,15 +31,16 @@ create table bookings (
     facility_ref int not null,
     foreign key (facility_ref) references facilities(facility_id),
     service_id int not null,
-    foreign key (service_id) references service_config(serv_config_id),
+    foreign key (service_id) references service_config(config_id),
     booking_date date not null,
-    booking_time time not null
+    booking_time time not null,
+    booking_status varchar
 );
 
 create table services(
     service_id serial not null primary key, 
     facility_ref int, 
     foreign key (facility_ref) references facilities(facility_id),
-    serv_config_ref int, 
-    foreign key (serv_config_ref) references service_config(serv_config_id)
+    config_ref int, 
+    foreign key (config_ref) references service_config(config_id),
 );
