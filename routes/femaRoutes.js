@@ -34,15 +34,12 @@ router.post("/register", async (req, res) => {
 		let email = req.body.email;
 		let password = req.body.password;
 
-		bcrypt.hash(password, 10).then(async (hashedPass) => {
-			await db.none(
-				"insert into users(full_name, email, password) values ($1, $2, $3)",
-				[full_name, email, hashedPass]
-			);
-		});
-		res.json("user registered successfully");
-	} catch (error) {
-		res.json({
+        bcrypt.hash(password, 10).then(async(hashedPass) => {
+            await db.none('insert into users(full_name, email, password) values ($1, $2, $3)', [full_name, email, hashedPass])
+            res.json('user registered successfully');
+        });
+    }catch (error) {
+        	res.json({
 			status: "error",
 			error: error.message,
 		});
