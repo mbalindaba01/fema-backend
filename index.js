@@ -1,11 +1,11 @@
 const express = require('express')
 const app = express()
 const route = require('./routes/routes')
-require('dotenv').config();
+const cors = require('cors')
+require('dotenv').config()
 
+app.use(cors())
 app.use(express.json())
-
-//app.options("*", cors());
 
 const config = {
 	connectionString: 'postgresql://sanesh:sanesh123@localhost:5432/fema_app',
